@@ -4,7 +4,7 @@ Contains class with methods to create simple pagination from csv data
 """
 import csv
 from typing import List
-index_range = __import__('0-simple_helper_function').index_range
+from simple_helper_function import index_range
 
 
 class Server:
@@ -15,11 +15,11 @@ class Server:
     def __init__(self):
         self.__dataset = None
 
-    def dataset(self) -> List[List]:
+    def dataset(self) -> List[List[str]]:
         """
         Reads from csv file and returns the dataset.
         Returns:
-            List[List]: The dataset.
+            List[List[str]]: The dataset.
         """
         if self.__dataset is None:
             with open(self.DATA_FILE) as f:
@@ -38,14 +38,14 @@ class Server:
         """
         assert type(value) is int and value > 0
 
-    def get_page(self, page: int = 1, page_size: int = 10) -> List[List]:
+    def get_page(self, page: int = 1, page_size: int = 10) -> List[List[str]]:
         """
         Returns a page of the dataset.
         Args:
             page (int): The page number.
             page_size (int): The page size.
         Returns:
-            List[List]: The page of the dataset.
+            List[List[str]]: The page of the dataset.
         """
         self.assert_positive_integer_type(page)
         self.assert_positive_integer_type(page_size)
@@ -59,12 +59,12 @@ class Server:
 
     def get_hyper(self, page: int = 1, page_size: int = 10) -> dict:
         """
-        Returns a page of the dataset.
+        Returns pagination information for a page of the dataset.
         Args:
             page (int): The page number.
             page_size (int): The page size.
         Returns:
-            List[List]: The page of the dataset.
+            dict: Pagination information.
         """
         total_pages = len(self.dataset()) // page_size + 1
         data = self.get_page(page, page_size)
