@@ -4,7 +4,7 @@ Contains class with methods to create simple pagination from csv data
 """
 import csv
 from typing import List
-from simple_helper_function import index_range
+index_range = __import__('0-simple_helper_function').index_range
 
 
 class Server:
@@ -15,7 +15,7 @@ class Server:
     def __init__(self):
         self.__dataset = None
 
-    def dataset(self) -> List[List]:
+    def dataset(self) -> List[List[str]]:
         """
         Reads from csv file and returns the dataset.
         Returns:
