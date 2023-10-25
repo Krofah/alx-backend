@@ -4,9 +4,9 @@
 from base_caching import BaseCaching
 
 
-class LRUCache(BaseCaching):
+class LFUCache(BaseCaching):
     """
-    LRUCache defines an LRU caching system
+    FIFOCache defines a FIFO caching system
     """
 
     def __init__(self):
@@ -15,34 +15,52 @@ class LRUCache(BaseCaching):
         """
         super().__init__()
         self.usage = []
+        self.frequency = {}
 
     def put(self, key, item):
         """
         Cache a key-value pair
-        Args:
-            key: The key to cache
-            item: The value associated with the key
         """
-        if key is not None and item is not None:
-            if len(self.cache_data) >= BaseCaching.MAX_ITEMS and key not in self.cache_data:
-                discarded_key = self.usage.pop(0)
-                del self.cache_data[discarded_key]
-                print("DISCARD: {}".format(discarded_key))
+        if key is None or item is None:
+            pass
+        else:
+            length = len(self.cache_data)
+            if length >= BaseCaching.MAX_ITEMS and key not in self.cache_data:
+                lfu = min(self.frequency.values())
+                lfu_keys = []
+                for k, v in self.frequency.items():
+                    if v == lfu:
+                        lfu_keys.append(k)
+                if len(lfu_keys) > 1:
+                    lru_lfu = {}
+                    for k in lfu_keys:
+                        lru_lfu[k] = self.usage.index(k)
+                    discard = min(lru_lfu.values())
+                    discard = self.usage[discard]
+                else:
+                    discard = lfu_keys[0]
+
+                print("DISCARD: {}".format(discard))
+                del self.cache_data[discard]
+                del self.usage[self.usage.index(discard)]
+                del self.frequency[discard]
+            # update usage frequency
+            if key in self.frequency:
+                self.frequency[key] += 1
+            else:
+                self.frequency[key] = 1
             if key in self.usage:
-                self.usage.remove(key)
+                del self.usage[self.usage.index(key)]
             self.usage.append(key)
             self.cache_data[key] = item
 
     def get(self, key):
         """
-        Retrieve the value associated with a key
-        Args:
-            key: The key to retrieve the value for
-        Returns:
-            The value associated with the key, or None if the key doesn't exist
+        Return the value linked to a given key, or None
         """
-        if key is not None and key in self.cache_data:
-            self.usage.remove(key)
+        if key is not None and key in self.cache_data.keys():
+            del self.usage[self.usage.index(key)]
             self.usage.append(key)
+            self.frequency[key] += 1
             return self.cache_data[key]
         return None
